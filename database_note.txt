@@ -1,0 +1,100 @@
+https://e-commerce-api-rrcx.onrender.com/api/v1/store
+ashikswebd_db_user
+w6E6cLBg7eCvs32Y
+mongodb+srv://ashikswebd_db_user:w6E6cLBg7eCvs32Y@cluster0.xyucpkb.mongodb.net/
+
+product_category
+product_category_id(pk)
+slug
+category_name
+category_image
+category_description
+
+
+product_sub_category
+product_category_id (fk)
+slug
+product_sub_category_id (pk)
+sub_category_name
+category_image
+category_description
+
+categories
+  _id   ← this IS the category id
+  slug
+  name
+  image
+  description
+  created_at
+  updated_at
+sub_categories
+  _id
+  category_id  ← references categories._id
+  slug
+  name
+  image
+  description
+  created_at
+  updated_at
+
+products
+  _id
+  name
+  slug
+  description
+  price
+  discount
+  in_stock
+  category_id
+  sub_category_id
+  created_by
+  avg_rating
+  no_of_reviews
+  created_at
+  updated_at
+
+product_images
+  _id
+  product_id
+  image_url
+  image_public_id
+  created_at
+
+
+
+Why Use Slugs in E-commerce?
+SEO-Friendly URLs: Search engines understand and rank readable, keyword-rich URLs better.
+Better UX: Users can read, remember, and share URLs easily.
+Readable Routing: Developers can fetch resources using names instead of raw IDs. 
+
+
+npm install slugify
+
+const mongoose = require('mongoose');
+const slugify = require('slugify');
+
+const productSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  slug: {
+    type: String,
+    unique: true, // Crucial for database integrity
+  },
+  price: Number,
+  // ...other fields
+});
+
+// Pre-save hook to generate slug
+productSchema.pre('save', function(next) {
+  if (this.isModified('name')) {
+    this.slug = slugify(this.name, {
+      lower: true,      // convert to lower case
+      strict: true,     // strip special characters
+    });
+  }
+  next();
+});
+
+const Product = mongoose.model('Product', productSchema);
