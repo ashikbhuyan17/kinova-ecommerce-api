@@ -648,10 +648,12 @@
  *           schema:
  *             $ref: '#/components/schemas/CreateCategoryRequest'
  *           example:
- *             name: "Electronics"
- *             slug: "electronics"
- *             description: "Electronic products and gadgets"
- *             image: "data:image/png;base64,iVBORw0KGgoAAAANS..."
+ *             {
+ *               "name": "Electronics",
+ *               "slug": "electronics",
+ *               "description": "Electronic products and gadgets",
+ *               "image": "data:image/png;base64,iVBORw0KGgoAAAANS..."
+ *             }
  *     responses:
  *       201:
  *         description: Category created successfully
@@ -801,8 +803,12 @@
  *           schema:
  *             $ref: '#/components/schemas/UpdateCategoryRequest'
  *           example:
- *             name: "Updated Electronics"
- *             description: "Updated description"
+ *             {
+ *               "name": "Updated Electronics",
+ *               "slug": "updated-electronics",
+ *               "description": "Updated description",
+ *               "image": null
+ *             }
  *     responses:
  *       200:
  *         description: Category updated successfully
@@ -884,11 +890,13 @@
  *           schema:
  *             $ref: '#/components/schemas/CreateSubCategoryRequest'
  *           example:
- *             category: "507f1f77bcf86cd799439011"
- *             name: "Smartphones"
- *             slug: "smartphones"
- *             description: "Smartphones and mobile devices"
- *             image: "data:image/png;base64,iVBORw0KGgoAAAANS..."
+ *             {
+ *               "category": "507f1f77bcf86cd799439011",
+ *               "name": "Smartphones",
+ *               "slug": "smartphones",
+ *               "description": "Smartphones and mobile devices",
+ *               "image": "data:image/png;base64,iVBORw0KGgoAAAANS..."
+ *             }
  *     responses:
  *       201:
  *         description: SubCategory created successfully
@@ -1097,8 +1105,13 @@
  *           schema:
  *             $ref: '#/components/schemas/UpdateSubCategoryRequest'
  *           example:
- *             name: "Updated Smartphones"
- *             description: "Updated description"
+ *             {
+ *               "category": "507f1f77bcf86cd799439011",
+ *               "name": "Updated Smartphones",
+ *               "slug": "updated-smartphones",
+ *               "description": "Updated description",
+ *               "image": null
+ *             }
  *     responses:
  *       200:
  *         description: SubCategory updated successfully

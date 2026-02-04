@@ -17,7 +17,7 @@ exports.bootStrap = bootStrap;
 const mongoose_1 = __importDefault(require("mongoose"));
 const config_1 = __importDefault(require("../config"));
 const app_1 = __importDefault(require("../app"));
-const logger_1 = require("./logger");
+const logger_1 = require("../shared/logger");
 let server;
 function bootStrap() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -29,13 +29,13 @@ function bootStrap() {
             logger_1.logger.info(`==== ✌️  DB Connection is succesfully ====`);
         }
         catch (error) {
-            logger_1.errorLogger.error(`==== 🤞  Database Connection Error ====`, error);
+            logger_1.errorlogger.error(`==== 🤞  Database Connection Error ====`, error);
         }
         process.on('unhandledRejection', error => {
             console.log(error);
             if (server) {
                 server.close(() => {
-                    logger_1.errorLogger.error(error);
+                    logger_1.errorlogger.error(error);
                     process.exit(1);
                 });
             }

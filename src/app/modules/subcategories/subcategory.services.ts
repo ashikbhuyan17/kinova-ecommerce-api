@@ -2,9 +2,9 @@ import { Types } from 'mongoose'
 import { ISubCategory } from './subcategory.interface'
 import { SubCategory } from './subcategory.model'
 import { Category } from '../categories/category.model'
-import { ApiError } from '../../../errorFormating/apiError'
 import status from 'http-status'
 import slugify from 'slugify'
+import ApiError from '../../../errors/ApiError'
 
 // Pagination interface
 export interface PaginationOptions {

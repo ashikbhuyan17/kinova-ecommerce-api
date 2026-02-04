@@ -14,9 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteCategoryService = exports.updateCategoryService = exports.getCategoryBySlugService = exports.getCategoryByIdService = exports.getAllCategoriesService = exports.createCategoryService = void 0;
 const category_model_1 = require("./category.model");
-const apiError_1 = require("../../../errorFormating/apiError");
 const http_status_1 = __importDefault(require("http-status"));
 const slugify_1 = __importDefault(require("slugify"));
+const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
 /**
  * Create Category Service
  * Only logged-in users can create categories (admin only typically)
@@ -28,7 +28,7 @@ const createCategoryService = (data) => __awaiter(void 0, void 0, void 0, functi
     // Check if slug already exists
     const existingCategory = yield category_model_1.Category.findOne({ slug });
     if (existingCategory) {
-        throw new apiError_1.ApiError(http_status_1.default.CONFLICT, 'Category with this slug already exists');
+        throw new ApiError_1.default(http_status_1.default.CONFLICT, 'Category with this slug already exists');
     }
     const categoryData = Object.assign(Object.assign({}, data), { slug, image: (_a = data.image) !== null && _a !== void 0 ? _a : null, description: (_b = data.description) !== null && _b !== void 0 ? _b : null });
     const result = yield category_model_1.Category.create(categoryData);
@@ -65,7 +65,7 @@ exports.getAllCategoriesService = getAllCategoriesService;
 const getCategoryByIdService = (categoryId) => __awaiter(void 0, void 0, void 0, function* () {
     const category = yield category_model_1.Category.findById(categoryId).lean();
     if (!category) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Category not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Category not found');
     }
     return category;
 });
@@ -76,7 +76,7 @@ exports.getCategoryByIdService = getCategoryByIdService;
 const getCategoryBySlugService = (slug) => __awaiter(void 0, void 0, void 0, function* () {
     const category = yield category_model_1.Category.findOne({ slug }).lean();
     if (!category) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Category not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Category not found');
     }
     return category;
 });
@@ -88,7 +88,7 @@ exports.getCategoryBySlugService = getCategoryBySlugService;
 const updateCategoryService = (categoryId, updateData) => __awaiter(void 0, void 0, void 0, function* () {
     const category = yield category_model_1.Category.findById(categoryId);
     if (!category) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Category not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Category not found');
     }
     // If name is updated and slug is not provided, regenerate slug
     if (updateData.name && !updateData.slug) {
@@ -102,7 +102,7 @@ const updateCategoryService = (categoryId, updateData) => __awaiter(void 0, void
     if (updateData.slug && updateData.slug !== category.slug) {
         const existingCategory = yield category_model_1.Category.findOne({ slug: updateData.slug });
         if (existingCategory) {
-            throw new apiError_1.ApiError(http_status_1.default.CONFLICT, 'Category with this slug already exists');
+            throw new ApiError_1.default(http_status_1.default.CONFLICT, 'Category with this slug already exists');
         }
     }
     // Update fields
@@ -119,7 +119,7 @@ exports.updateCategoryService = updateCategoryService;
 const deleteCategoryService = (categoryId) => __awaiter(void 0, void 0, void 0, function* () {
     const category = yield category_model_1.Category.findById(categoryId);
     if (!category) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Category not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Category not found');
     }
     // Hard delete
     yield category_model_1.Category.findByIdAndDelete(categoryId);

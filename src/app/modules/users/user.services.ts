@@ -1,8 +1,8 @@
 import config from '../../../config'
+import ApiError from '../../../errors/ApiError'
 import { IUser } from './user.interface'
 import { User } from './user.model'
 import { generateUserId } from './user.utils'
-import { ApiError } from '../../../errorFormating/apiError'
 import status from 'http-status'
 import jwt from 'jsonwebtoken'
 

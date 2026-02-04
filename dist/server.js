@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const logger_1 = require("./utilities/logger");
+const logger_1 = require("./shared/logger");
 const bootStrap_1 = require("./utilities/bootStrap");
 process.on('uncaughtException', error => {
-    logger_1.errorLogger.error(error);
+    logger_1.errorlogger.error(error);
     process.exit(1);
 });
 (0, bootStrap_1.bootStrap)();

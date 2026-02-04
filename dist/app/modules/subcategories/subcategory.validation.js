@@ -56,7 +56,7 @@ exports.createSubCategoryZod = zod_1.z.object({
 // Update subcategory validation schema
 exports.updateSubCategoryZod = zod_1.z.object({
     body: zod_1.z.object({
-        category_id: zod_1.z.string().optional(),
+        category: zod_1.z.string().optional(),
         name: zod_1.z
             .string()
             .min(1, 'Name cannot be empty')

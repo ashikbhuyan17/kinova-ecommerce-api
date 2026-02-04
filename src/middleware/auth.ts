@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import config from '../config'
-import { ApiError } from '../errorFormating/apiError'
 import status from 'http-status'
 import { User } from '../app/modules/users/user.model'
+import ApiError from '../errors/ApiError'
 
 // Extend Express Request to include user
 declare global {

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
-import { ApiError } from '../errorFormating/apiError'
 import status from 'http-status'
+import ApiError from '../errors/ApiError'
 
 /**
  * Admin Middleware

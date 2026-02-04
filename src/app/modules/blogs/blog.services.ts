@@ -1,8 +1,8 @@
 import { Types } from 'mongoose'
 import { IBlog, BlogCategory } from './blog.interface'
 import { Blog } from './blog.model'
-import { ApiError } from '../../../errorFormating/apiError'
 import status from 'http-status'
+import ApiError from '../../../errors/ApiError'
 
 // Pagination interface
 export interface PaginationOptions {

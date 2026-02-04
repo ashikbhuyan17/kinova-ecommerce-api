@@ -3,8 +3,8 @@ import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './config/swagger'
 import routers from './app/routes'
-import { globarError } from './middleware/globalError'
 import status from 'http-status'
+import globalErrorHandler from './app/middlewares/globalErrorHandler'
 const app: Application = express()
 
 // Middleware
@@ -58,7 +58,7 @@ app.get('/', (req: Request, res: Response) => {
 })
 
 // Global error handle
-app.use(globarError)
+app.use(globalErrorHandler)
 
 // Unknown API Handle
 app.use((req: Request, res: Response) => {

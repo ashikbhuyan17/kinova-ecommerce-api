@@ -15,8 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteBlogService = exports.updateBlogService = exports.getBlogByIdService = exports.getMyBlogsService = exports.getAllPublishedBlogsService = exports.createBlogService = void 0;
 const mongoose_1 = require("mongoose");
 const blog_model_1 = require("./blog.model");
-const apiError_1 = require("../../../errorFormating/apiError");
 const http_status_1 = __importDefault(require("http-status"));
+const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
 /**
  * Helper function to ensure category field is always present (null if not set)
  * Mongoose .lean() omits null fields, so we need to explicitly add them
@@ -136,7 +136,7 @@ const getBlogByIdService = (blogId, userMongoId) => __awaiter(void 0, void 0, vo
         .populate('author', 'name phone id _id')
         .lean();
     if (!blog) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Blog not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Blog not found');
     }
     // Ensure category field is always present (null if not set)
     const blogWithCategory = ensureCategoryField(blog);
@@ -153,7 +153,7 @@ const getBlogByIdService = (blogId, userMongoId) => __awaiter(void 0, void 0, vo
             return blogWithCategory;
         }
     }
-    throw new apiError_1.ApiError(http_status_1.default.FORBIDDEN, 'You do not have permission to view this blog');
+    throw new ApiError_1.default(http_status_1.default.FORBIDDEN, 'You do not have permission to view this blog');
 });
 exports.getBlogByIdService = getBlogByIdService;
 /**
@@ -165,13 +165,13 @@ userRole) => __awaiter(void 0, void 0, void 0, function* () {
     // Find blog and check ownership
     const blog = yield blog_model_1.Blog.findById(blogId);
     if (!blog) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Blog not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Blog not found');
     }
     // Check if user is the author OR admin
     const isOwner = blog.author.toString() === userMongoId;
     const isAdmin = userRole === 'admin';
     if (!isOwner && !isAdmin) {
-        throw new apiError_1.ApiError(http_status_1.default.FORBIDDEN, 'You do not have permission to update this blog');
+        throw new ApiError_1.default(http_status_1.default.FORBIDDEN, 'You do not have permission to update this blog');
     }
     // Update fields
     Object.assign(blog, updateData);
@@ -192,13 +192,13 @@ userRole) => __awaiter(void 0, void 0, void 0, function* () {
     // Find blog and check ownership
     const blog = yield blog_model_1.Blog.findById(blogId);
     if (!blog) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Blog not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Blog not found');
     }
     // Check if user is the author OR admin
     const isOwner = blog.author.toString() === userMongoId;
     const isAdmin = userRole === 'admin';
     if (!isOwner && !isAdmin) {
-        throw new apiError_1.ApiError(http_status_1.default.FORBIDDEN, 'You do not have permission to delete this blog');
+        throw new ApiError_1.default(http_status_1.default.FORBIDDEN, 'You do not have permission to delete this blog');
     }
     // Hard delete (you can change this to soft delete by adding a deletedAt field)
     yield blog_model_1.Blog.findByIdAndDelete(blogId);

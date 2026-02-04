@@ -55,7 +55,7 @@ export const createSubCategoryZod = z.object({
 // Update subcategory validation schema
 export const updateSubCategoryZod = z.object({
   body: z.object({
-    category_id: z.string().optional(),
+    category: z.string().optional(),
     name: z
       .string()
       .min(1, 'Name cannot be empty')

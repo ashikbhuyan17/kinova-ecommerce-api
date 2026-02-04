@@ -1,9 +1,9 @@
 import { Types } from 'mongoose'
 import { ICategory } from './category.interface'
 import { Category } from './category.model'
-import { ApiError } from '../../../errorFormating/apiError'
 import status from 'http-status'
 import slugify from 'slugify'
+import ApiError from '../../../errors/ApiError'
 
 // Pagination interface
 export interface PaginationOptions {

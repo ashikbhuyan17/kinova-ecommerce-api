@@ -15,9 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.auth = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../config"));
-const apiError_1 = require("../errorFormating/apiError");
 const http_status_1 = __importDefault(require("http-status"));
 const user_model_1 = require("../app/modules/users/user.model");
+const ApiError_1 = __importDefault(require("../errors/ApiError"));
 /**
  * Auth Middleware
  *
@@ -35,24 +35,24 @@ const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () 
         // Format: "Bearer <token>"
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            throw new apiError_1.ApiError(http_status_1.default.UNAUTHORIZED, 'You are not authorized!');
+            throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, 'You are not authorized!');
         }
         // Extract token (remove "Bearer " prefix)
         const token = authHeader.split(' ')[1];
         if (!token) {
-            throw new apiError_1.ApiError(http_status_1.default.UNAUTHORIZED, 'Token is missing!');
+            throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, 'Token is missing!');
         }
         // Verify token
         // jwt.verify throws error if token is invalid or expired
         if (!config_1.default.jwt.secret) {
-            throw new apiError_1.ApiError(http_status_1.default.INTERNAL_SERVER_ERROR, 'JWT secret is not configured');
+            throw new ApiError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'JWT secret is not configured');
         }
         const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt.secret);
         // Find user in database
         // Include both _id (Mongoose default) and id (custom)
         const user = yield user_model_1.User.findOne({ id: decoded.id }, { _id: 1, id: 1, phone: 1, role: 1, userType: 1, name: 1 });
         if (!user) {
-            throw new apiError_1.ApiError(http_status_1.default.UNAUTHORIZED, 'User not found!');
+            throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, 'User not found!');
         }
         // Attach user info to request object
         // This allows route handlers to access user info via req.user
@@ -69,10 +69,10 @@ const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () 
     catch (error) {
         // Handle JWT errors
         if (error instanceof jsonwebtoken_1.default.JsonWebTokenError) {
-            next(new apiError_1.ApiError(http_status_1.default.UNAUTHORIZED, 'Invalid token!'));
+            next(new ApiError_1.default(http_status_1.default.UNAUTHORIZED, 'Invalid token!'));
         }
         else if (error instanceof jsonwebtoken_1.default.TokenExpiredError) {
-            next(new apiError_1.ApiError(http_status_1.default.UNAUTHORIZED, 'Token has expired!'));
+            next(new ApiError_1.default(http_status_1.default.UNAUTHORIZED, 'Token has expired!'));
         }
         else {
             // Pass other errors to global error handler

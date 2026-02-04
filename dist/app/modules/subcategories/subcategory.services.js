@@ -16,9 +16,9 @@ exports.deleteSubCategoryService = exports.updateSubCategoryService = exports.ge
 const mongoose_1 = require("mongoose");
 const subcategory_model_1 = require("./subcategory.model");
 const category_model_1 = require("../categories/category.model");
-const apiError_1 = require("../../../errorFormating/apiError");
 const http_status_1 = __importDefault(require("http-status"));
 const slugify_1 = __importDefault(require("slugify"));
+const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
 // No transformation needed - field is now 'category' directly in schema
 /**
  * Create SubCategory Service
@@ -29,7 +29,7 @@ const createSubCategoryService = (data) => __awaiter(void 0, void 0, void 0, fun
     // Verify category exists
     const category = yield category_model_1.Category.findById(data.category);
     if (!category) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Category not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Category not found');
     }
     // Generate slug from name if not provided
     const slug = data.slug || (0, slugify_1.default)(data.name, { lower: true, strict: true, trim: true });
@@ -39,7 +39,7 @@ const createSubCategoryService = (data) => __awaiter(void 0, void 0, void 0, fun
         category: data.category,
     });
     if (existingSubCategory) {
-        throw new apiError_1.ApiError(http_status_1.default.CONFLICT, 'SubCategory with this slug already exists in this category');
+        throw new ApiError_1.default(http_status_1.default.CONFLICT, 'SubCategory with this slug already exists in this category');
     }
     const subCategoryData = Object.assign(Object.assign({}, data), { category: new mongoose_1.Types.ObjectId(data.category), slug, image: (_a = data.image) !== null && _a !== void 0 ? _a : null, description: (_b = data.description) !== null && _b !== void 0 ? _b : null });
     const result = yield subcategory_model_1.SubCategory.create(subCategoryData);
@@ -85,7 +85,7 @@ const getSubCategoryByIdService = (subCategoryId) => __awaiter(void 0, void 0, v
         .populate('category', 'name slug _id')
         .lean();
     if (!subCategory) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'SubCategory not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'SubCategory not found');
     }
     return subCategory;
 });
@@ -102,7 +102,7 @@ const getSubCategoryBySlugService = (slug, categoryId) => __awaiter(void 0, void
         .populate('category', 'name slug _id')
         .lean();
     if (!subCategory) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'SubCategory not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'SubCategory not found');
     }
     return subCategory;
 });
@@ -116,7 +116,7 @@ const getSubCategoriesByCategoryIdService = (categoryId, options) => __awaiter(v
     // Verify category exists
     const category = yield category_model_1.Category.findById(categoryId);
     if (!category) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Category not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Category not found');
     }
     const [subCategories, total] = yield Promise.all([
         subcategory_model_1.SubCategory.find({ category: new mongoose_1.Types.ObjectId(categoryId) })
@@ -143,13 +143,13 @@ exports.getSubCategoriesByCategoryIdService = getSubCategoriesByCategoryIdServic
 const updateSubCategoryService = (subCategoryId, updateData) => __awaiter(void 0, void 0, void 0, function* () {
     const subCategory = yield subcategory_model_1.SubCategory.findById(subCategoryId);
     if (!subCategory) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'SubCategory not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'SubCategory not found');
     }
     // If category is being updated, verify it exists
     if (updateData.category) {
         const category = yield category_model_1.Category.findById(updateData.category);
         if (!category) {
-            throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Category not found');
+            throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'Category not found');
         }
         updateData.category = new mongoose_1.Types.ObjectId(updateData.category);
     }
@@ -178,7 +178,7 @@ const updateSubCategoryService = (subCategoryId, updateData) => __awaiter(void 0
             _id: { $ne: subCategoryId },
         });
         if (existingSubCategory) {
-            throw new apiError_1.ApiError(http_status_1.default.CONFLICT, 'SubCategory with this slug already exists in this category');
+            throw new ApiError_1.default(http_status_1.default.CONFLICT, 'SubCategory with this slug already exists in this category');
         }
     }
     // Update fields
@@ -196,7 +196,7 @@ exports.updateSubCategoryService = updateSubCategoryService;
 const deleteSubCategoryService = (subCategoryId) => __awaiter(void 0, void 0, void 0, function* () {
     const subCategory = yield subcategory_model_1.SubCategory.findById(subCategoryId);
     if (!subCategory) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'SubCategory not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'SubCategory not found');
     }
     // Hard delete
     yield subcategory_model_1.SubCategory.findByIdAndDelete(subCategoryId);

@@ -25,21 +25,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUserService = exports.updateUserService = exports.getUserByIdService = exports.getAllUsersService = exports.createUserService = exports.loginUserService = exports.registerUserService = void 0;
 const config_1 = __importDefault(require("../../../config"));
+const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
 const user_model_1 = require("./user.model");
 const user_utils_1 = require("./user.utils");
-const apiError_1 = require("../../../errorFormating/apiError");
 const http_status_1 = __importDefault(require("http-status"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 // Registration service
 const registerUserService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     // Check if userType is "reserveit" - mandatory for registration
     if (data.userType !== 'reserveit') {
-        throw new apiError_1.ApiError(http_status_1.default.FORBIDDEN, 'UserType must be "reserveit" for registration');
+        throw new ApiError_1.default(http_status_1.default.FORBIDDEN, 'UserType must be "reserveit" for registration');
     }
     // Check if user already exists
     const existingUser = yield user_model_1.User.isUserExist(data.phone);
     if (existingUser) {
-        throw new apiError_1.ApiError(http_status_1.default.CONFLICT, 'User already exists with this phone number');
+        throw new ApiError_1.default(http_status_1.default.CONFLICT, 'User already exists with this phone number');
     }
     // Generate user ID
     const id = yield (0, user_utils_1.generateUserId)();
@@ -63,26 +63,26 @@ exports.registerUserService = registerUserService;
 // Login service
 const loginUserService = (phone, password, userType) => __awaiter(void 0, void 0, void 0, function* () {
     if (userType !== 'reserveit') {
-        throw new apiError_1.ApiError(http_status_1.default.FORBIDDEN, 'UserType must be same as registration');
+        throw new ApiError_1.default(http_status_1.default.FORBIDDEN, 'UserType must be same as registration');
     }
     // Check if user exists
     const user = yield user_model_1.User.isUserExist(phone);
     if (!user) {
-        throw new apiError_1.ApiError(http_status_1.default.UNAUTHORIZED, 'Invalid phone or password');
+        throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, 'Invalid phone or password');
     }
     // Check if user has "reserveit" userType - mandatory for login
     if (user.userType !== 'reserveit') {
-        throw new apiError_1.ApiError(http_status_1.default.FORBIDDEN, 'Access denied. Only users with userType "reserveit" can login');
+        throw new ApiError_1.default(http_status_1.default.FORBIDDEN, 'Access denied. Only users with userType "reserveit" can login');
     }
     // Check if password matches
     const isPasswordMatched = yield user_model_1.User.isPasswordMatched(password, user.password);
     if (!isPasswordMatched) {
-        throw new apiError_1.ApiError(http_status_1.default.UNAUTHORIZED, 'Invalid phone or password');
+        throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, 'Invalid phone or password');
     }
     // Generate JWT token
     const jwtSecret = config_1.default.jwt.secret;
     if (!jwtSecret) {
-        throw new apiError_1.ApiError(http_status_1.default.INTERNAL_SERVER_ERROR, 'JWT secret is not configured');
+        throw new ApiError_1.default(http_status_1.default.INTERNAL_SERVER_ERROR, 'JWT secret is not configured');
     }
     const payload = {
         id: user.id,
@@ -145,7 +145,7 @@ exports.getAllUsersService = getAllUsersService;
 const getUserByIdService = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_model_1.User.findById(userId, { password: 0 }).lean();
     if (!user) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'User not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
     }
     return user;
 });
@@ -157,7 +157,7 @@ exports.getUserByIdService = getUserByIdService;
 const updateUserService = (userId, updateData) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_model_1.User.findById(userId);
     if (!user) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'User not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
     }
     // Update allowed fields
     if (updateData.name !== undefined) {
@@ -167,7 +167,7 @@ const updateUserService = (userId, updateData) => __awaiter(void 0, void 0, void
         // Check if phone already exists for another user
         const existingUser = yield user_model_1.User.findOne({ phone: updateData.phone });
         if (existingUser && existingUser._id.toString() !== userId) {
-            throw new apiError_1.ApiError(http_status_1.default.CONFLICT, 'Phone number already exists for another user');
+            throw new ApiError_1.default(http_status_1.default.CONFLICT, 'Phone number already exists for another user');
         }
         user.phone = updateData.phone;
     }
@@ -187,7 +187,7 @@ exports.updateUserService = updateUserService;
 const deleteUserService = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_model_1.User.findById(userId);
     if (!user) {
-        throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'User not found');
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
     }
     yield user_model_1.User.findByIdAndDelete(userId);
 });

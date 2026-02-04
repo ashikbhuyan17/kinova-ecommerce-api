@@ -1,9 +1,9 @@
-import { errorLogger, logger } from './utilities/logger'
+import { errorlogger, logger } from './shared/logger'
 import { bootStrap } from './utilities/bootStrap'
 import { Server } from 'http'
 
 process.on('uncaughtException', error => {
-  errorLogger.error(error)
+  errorlogger.error(error)
   process.exit(1)
 })
 

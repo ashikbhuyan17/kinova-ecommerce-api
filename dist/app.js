@@ -8,8 +8,8 @@ const cors_1 = __importDefault(require("cors"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_1 = require("./config/swagger");
 const routes_1 = __importDefault(require("./app/routes"));
-const globalError_1 = require("./middleware/globalError");
 const http_status_1 = __importDefault(require("http-status"));
+const globalErrorHandler_1 = __importDefault(require("./app/middlewares/globalErrorHandler"));
 const app = (0, express_1.default)();
 // Middleware
 app.use((0, cors_1.default)());
@@ -46,7 +46,7 @@ app.get('/', (req, res) => {
     // Promise.reject(new Error(`Unhandle Promiss Rejection`))
 });
 // Global error handle
-app.use(globalError_1.globarError);
+app.use(globalErrorHandler_1.default);
 // Unknown API Handle
 app.use((req, res) => {
     res.status(http_status_1.default.NOT_FOUND).json({
