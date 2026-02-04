@@ -31,17 +31,17 @@ export const createSubCategory = tryCatch(async (req: Request, res: Response) =>
 /**
  * Get All SubCategories Controller
  * Public endpoint - no authentication required
- * Supports pagination and filtering by category_id
+ * Supports pagination and filtering by category
  */
 export const getAllSubCategories = tryCatch(async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1
   const limit = Number(req.query.limit) || 10
-  const category_id = req.query.category_id as string | undefined
+  const category = req.query.category as string | undefined
 
   const options: PaginationOptions = {
     page,
     limit,
-    category_id,
+    category,
   }
 
   const result = await getAllSubCategoriesService(options)
@@ -103,7 +103,7 @@ export const getSubCategoryById = tryCatch(async (req: Request, res: Response) =
  */
 export const getSubCategoryBySlug = tryCatch(async (req: Request, res: Response) => {
   const { slug } = req.params
-  const categoryId = req.query.category_id as string | undefined
+  const categoryId = req.query.category as string | undefined
 
   const result = await getSubCategoryBySlugService(slug, categoryId)
 

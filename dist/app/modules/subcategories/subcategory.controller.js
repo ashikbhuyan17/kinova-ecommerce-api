@@ -33,16 +33,16 @@ exports.createSubCategory = (0, tryCatch_1.tryCatch)((req, res) => __awaiter(voi
 /**
  * Get All SubCategories Controller
  * Public endpoint - no authentication required
- * Supports pagination and filtering by category_id
+ * Supports pagination and filtering by category
  */
 exports.getAllSubCategories = (0, tryCatch_1.tryCatch)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-    const category_id = req.query.category_id;
+    const category = req.query.category;
     const options = {
         page,
         limit,
-        category_id,
+        category,
     };
     const result = yield (0, subcategory_services_1.getAllSubCategoriesService)(options);
     (0, sendRes_1.sendRes)(res, {
@@ -92,7 +92,7 @@ exports.getSubCategoryById = (0, tryCatch_1.tryCatch)((req, res) => __awaiter(vo
  */
 exports.getSubCategoryBySlug = (0, tryCatch_1.tryCatch)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { slug } = req.params;
-    const categoryId = req.query.category_id;
+    const categoryId = req.query.category;
     const result = yield (0, subcategory_services_1.getSubCategoryBySlugService)(slug, categoryId);
     (0, sendRes_1.sendRes)(res, {
         statusCode: http_status_1.default.OK,

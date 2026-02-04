@@ -92,10 +92,10 @@ All endpoints include example request bodies. You can:
 ### SubCategory Endpoints
 
 - `POST /api/v1/subcategory` - Create a new subcategory (Admin only)
-- `GET /api/v1/subcategory` - Get all subcategories (Public, can filter by category_id)
+- `GET /api/v1/subcategory` - Get all subcategories (Public, can filter by category)
 - `GET /api/v1/subcategory/category/{categoryId}` - Get subcategories by category ID (Public)
 - `GET /api/v1/subcategory/{id}` - Get subcategory by ID (Public)
-- `GET /api/v1/subcategory/slug/{slug}` - Get subcategory by slug (Public, optional category_id filter)
+- `GET /api/v1/subcategory/slug/{slug}` - Get subcategory by slug (Public, optional category filter)
 - `PATCH /api/v1/subcategory/{id}` - Update subcategory (Admin only)
 - `DELETE /api/v1/subcategory/{id}` - Delete subcategory (Admin only)
 
@@ -184,7 +184,7 @@ Categories are top-level product categories with the following fields:
 SubCategories belong to a category and have the following fields:
 
 - `_id` - MongoDB ObjectId (SubCategory ID)
-- `category_id` - Reference to Category `_id` (required)
+- `category` - Reference to Category `_id` (required, populated as Category object in responses)
 - `slug` - URL-friendly slug (auto-generated from name if not provided)
 - `name` - SubCategory name (required, max 200 characters)
 - `image` - Base64 encoded image (optional, max 1MB)

@@ -672,7 +672,7 @@ Error responses follow this structure:
             description: 'MongoDB ObjectId (SubCategory ID)',
             example: '507f1f77bcf86cd799439012',
           },
-          category_id: {
+          category: {
             oneOf: [
               {
                 type: 'string',
@@ -718,13 +718,13 @@ Error responses follow this structure:
             description: 'Last update timestamp',
           },
         },
-        required: ['category_id', 'slug', 'name'],
+        required: ['category', 'slug', 'name'],
       },
       CreateSubCategoryRequest: {
         type: 'object',
-        required: ['category_id', 'name'],
+        required: ['category', 'name'],
         properties: {
-          category_id: {
+          category: {
             type: 'string',
             description: 'Category MongoDB ObjectId',
             example: '507f1f77bcf86cd799439011',
@@ -760,7 +760,7 @@ Error responses follow this structure:
       UpdateSubCategoryRequest: {
         type: 'object',
         properties: {
-          category_id: {
+          category: {
             type: 'string',
             description: 'Category MongoDB ObjectId',
             example: '507f1f77bcf86cd799439011',

@@ -884,7 +884,7 @@
  *           schema:
  *             $ref: '#/components/schemas/CreateSubCategoryRequest'
  *           example:
- *             category_id: "507f1f77bcf86cd799439011"
+ *             category: "507f1f77bcf86cd799439011"
  *             name: "Smartphones"
  *             slug: "smartphones"
  *             description: "Smartphones and mobile devices"
@@ -923,7 +923,7 @@
  *     description: |
  *       Retrieve a paginated list of all subcategories.
  *       Public endpoint - no authentication required.
- *       Can filter by category_id.
+ *       Can filter by category.
  *     parameters:
  *       - in: query
  *         name: page
@@ -941,7 +941,7 @@
  *           default: 10
  *         description: Items per page
  *       - in: query
- *         name: category_id
+ *         name: category
  *         schema:
  *           type: string
  *         description: Filter by category ID
@@ -1043,7 +1043,7 @@
  *     tags:
  *       - SubCategory
  *     summary: Get subcategory by slug
- *     description: Retrieve a single subcategory by its slug. Public endpoint. Optionally filter by category_id.
+ *     description: Retrieve a single subcategory by its slug. Public endpoint. Optionally filter by category.
  *     parameters:
  *       - in: path
  *         name: slug
@@ -1052,7 +1052,7 @@
  *           type: string
  *         description: SubCategory slug
  *       - in: query
- *         name: category_id
+ *         name: category
  *         schema:
  *           type: string
  *         description: Optional category ID filter

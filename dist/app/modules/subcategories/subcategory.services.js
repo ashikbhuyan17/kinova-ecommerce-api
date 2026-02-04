@@ -19,6 +19,7 @@ const category_model_1 = require("../categories/category.model");
 const apiError_1 = require("../../../errorFormating/apiError");
 const http_status_1 = __importDefault(require("http-status"));
 const slugify_1 = __importDefault(require("slugify"));
+// No transformation needed - field is now 'category' directly in schema
 /**
  * Create SubCategory Service
  * Only logged-in users can create subcategories (admin only typically)
@@ -26,7 +27,7 @@ const slugify_1 = __importDefault(require("slugify"));
 const createSubCategoryService = (data) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     // Verify category exists
-    const category = yield category_model_1.Category.findById(data.category_id);
+    const category = yield category_model_1.Category.findById(data.category);
     if (!category) {
         throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Category not found');
     }
@@ -35,32 +36,32 @@ const createSubCategoryService = (data) => __awaiter(void 0, void 0, void 0, fun
     // Check if slug already exists for this category
     const existingSubCategory = yield subcategory_model_1.SubCategory.findOne({
         slug,
-        category_id: data.category_id,
+        category: data.category,
     });
     if (existingSubCategory) {
         throw new apiError_1.ApiError(http_status_1.default.CONFLICT, 'SubCategory with this slug already exists in this category');
     }
-    const subCategoryData = Object.assign(Object.assign({}, data), { category_id: new mongoose_1.Types.ObjectId(data.category_id), slug, image: (_a = data.image) !== null && _a !== void 0 ? _a : null, description: (_b = data.description) !== null && _b !== void 0 ? _b : null });
+    const subCategoryData = Object.assign(Object.assign({}, data), { category: new mongoose_1.Types.ObjectId(data.category), slug, image: (_a = data.image) !== null && _a !== void 0 ? _a : null, description: (_b = data.description) !== null && _b !== void 0 ? _b : null });
     const result = yield subcategory_model_1.SubCategory.create(subCategoryData);
-    yield result.populate('category_id', 'name slug _id');
+    yield result.populate('category', 'name slug _id');
     return result.toObject();
 });
 exports.createSubCategoryService = createSubCategoryService;
 /**
  * Get All SubCategories Service
- * Supports pagination and filtering by category_id
+ * Supports pagination and filtering by category
  */
 const getAllSubCategoriesService = (options) => __awaiter(void 0, void 0, void 0, function* () {
-    const { page, limit, category_id } = options;
+    const { page, limit, category } = options;
     const skip = (page - 1) * limit;
     // Build filter
     const filter = {};
-    if (category_id) {
-        filter.category_id = new mongoose_1.Types.ObjectId(category_id);
+    if (category) {
+        filter.category = new mongoose_1.Types.ObjectId(category);
     }
     const [subCategories, total] = yield Promise.all([
         subcategory_model_1.SubCategory.find(filter)
-            .populate('category_id', 'name slug _id')
+            .populate('category', 'name slug _id')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
@@ -81,7 +82,7 @@ exports.getAllSubCategoriesService = getAllSubCategoriesService;
  */
 const getSubCategoryByIdService = (subCategoryId) => __awaiter(void 0, void 0, void 0, function* () {
     const subCategory = yield subcategory_model_1.SubCategory.findById(subCategoryId)
-        .populate('category_id', 'name slug _id')
+        .populate('category', 'name slug _id')
         .lean();
     if (!subCategory) {
         throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'SubCategory not found');
@@ -95,10 +96,10 @@ exports.getSubCategoryByIdService = getSubCategoryByIdService;
 const getSubCategoryBySlugService = (slug, categoryId) => __awaiter(void 0, void 0, void 0, function* () {
     const filter = { slug };
     if (categoryId) {
-        filter.category_id = new mongoose_1.Types.ObjectId(categoryId);
+        filter.category = new mongoose_1.Types.ObjectId(categoryId);
     }
     const subCategory = yield subcategory_model_1.SubCategory.findOne(filter)
-        .populate('category_id', 'name slug _id')
+        .populate('category', 'name slug _id')
         .lean();
     if (!subCategory) {
         throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'SubCategory not found');
@@ -118,13 +119,13 @@ const getSubCategoriesByCategoryIdService = (categoryId, options) => __awaiter(v
         throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Category not found');
     }
     const [subCategories, total] = yield Promise.all([
-        subcategory_model_1.SubCategory.find({ category_id: new mongoose_1.Types.ObjectId(categoryId) })
-            .populate('category_id', 'name slug _id')
+        subcategory_model_1.SubCategory.find({ category: new mongoose_1.Types.ObjectId(categoryId) })
+            .populate('category', 'name slug _id')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
             .lean(),
-        subcategory_model_1.SubCategory.countDocuments({ category_id: new mongoose_1.Types.ObjectId(categoryId) }),
+        subcategory_model_1.SubCategory.countDocuments({ category: new mongoose_1.Types.ObjectId(categoryId) }),
     ]);
     return {
         data: subCategories,
@@ -144,28 +145,36 @@ const updateSubCategoryService = (subCategoryId, updateData) => __awaiter(void 0
     if (!subCategory) {
         throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'SubCategory not found');
     }
-    // If category_id is being updated, verify it exists
-    if (updateData.category_id) {
-        const category = yield category_model_1.Category.findById(updateData.category_id);
+    // If category is being updated, verify it exists
+    if (updateData.category) {
+        const category = yield category_model_1.Category.findById(updateData.category);
         if (!category) {
             throw new apiError_1.ApiError(http_status_1.default.NOT_FOUND, 'Category not found');
         }
-        updateData.category_id = new mongoose_1.Types.ObjectId(updateData.category_id);
+        updateData.category = new mongoose_1.Types.ObjectId(updateData.category);
     }
     // If name is updated and slug is not provided, regenerate slug
     if (updateData.name && !updateData.slug) {
-        updateData.slug = (0, slugify_1.default)(updateData.name, { lower: true, strict: true, trim: true });
+        updateData.slug = (0, slugify_1.default)(updateData.name, {
+            lower: true,
+            strict: true,
+            trim: true,
+        });
     }
     // If slug is provided, format it
     if (updateData.slug) {
-        updateData.slug = (0, slugify_1.default)(updateData.slug, { lower: true, strict: true, trim: true });
+        updateData.slug = (0, slugify_1.default)(updateData.slug, {
+            lower: true,
+            strict: true,
+            trim: true,
+        });
     }
     // Check if new slug conflicts with existing subcategory in the same category
-    const categoryIdToCheck = updateData.category_id || subCategory.category_id;
+    const categoryIdToCheck = updateData.category || subCategory.category;
     if (updateData.slug && updateData.slug !== subCategory.slug) {
         const existingSubCategory = yield subcategory_model_1.SubCategory.findOne({
             slug: updateData.slug,
-            category_id: categoryIdToCheck,
+            category: categoryIdToCheck,
             _id: { $ne: subCategoryId },
         });
         if (existingSubCategory) {
@@ -176,7 +185,7 @@ const updateSubCategoryService = (subCategoryId, updateData) => __awaiter(void 0
     Object.assign(subCategory, updateData);
     // Save and populate
     yield subCategory.save();
-    yield subCategory.populate('category_id', 'name slug _id');
+    yield subCategory.populate('category', 'name slug _id');
     return subCategory.toObject();
 });
 exports.updateSubCategoryService = updateSubCategoryService;

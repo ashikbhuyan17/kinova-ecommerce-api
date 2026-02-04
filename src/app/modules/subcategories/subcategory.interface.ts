@@ -2,7 +2,7 @@ import { Types } from 'mongoose'
 
 export interface ISubCategory {
   _id?: Types.ObjectId
-  category_id: Types.ObjectId | string // Reference to Category
+  category: Types.ObjectId | string // Reference to Category
   slug: string
   name: string
   image?: string | null // Base64 encoded image

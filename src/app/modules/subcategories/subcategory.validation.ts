@@ -7,8 +7,8 @@ const base64ImageRegex = /^data:image\/(png|jpeg|jpg|gif|webp);base64,/
 // Create subcategory validation schema
 export const createSubCategoryZod = z.object({
   body: z.object({
-    category_id: z.string({
-      required_error: 'Category ID is required',
+    category: z.string({
+      required_error: 'Category is required',
     }),
     name: z
       .string({
@@ -126,6 +126,6 @@ export const paginationZod = z.object({
       .refine(val => val > 0 && val <= 100, {
         message: 'Limit must be between 1 and 100',
       }),
-    category_id: z.string().optional(), // Filter by category_id
+    category: z.string().optional(), // Filter by category
   }),
 })

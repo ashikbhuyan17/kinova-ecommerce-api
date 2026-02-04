@@ -10,7 +10,7 @@ import slugify from 'slugify'
 export interface PaginationOptions {
   page: number
   limit: number
-  category_id?: string
+  category?: string
 }
 
 export interface PaginatedResult<T> {
@@ -21,6 +21,8 @@ export interface PaginatedResult<T> {
   totalPages: number
 }
 
+// No transformation needed - field is now 'category' directly in schema
+
 /**
  * Create SubCategory Service
  * Only logged-in users can create subcategories (admin only typically)
@@ -29,18 +31,19 @@ export const createSubCategoryService = async (
   data: Omit<ISubCategory, '_id' | 'createdAt' | 'updatedAt'>,
 ): Promise<ISubCategory> => {
   // Verify category exists
-  const category = await Category.findById(data.category_id)
+  const category = await Category.findById(data.category)
   if (!category) {
     throw new ApiError(status.NOT_FOUND, 'Category not found')
   }
 
   // Generate slug from name if not provided
-  const slug = data.slug || slugify(data.name, { lower: true, strict: true, trim: true })
+  const slug =
+    data.slug || slugify(data.name, { lower: true, strict: true, trim: true })
 
   // Check if slug already exists for this category
   const existingSubCategory = await SubCategory.findOne({
     slug,
-    category_id: data.category_id,
+    category: data.category,
   })
   if (existingSubCategory) {
     throw new ApiError(
@@ -51,36 +54,36 @@ export const createSubCategoryService = async (
 
   const subCategoryData: ISubCategory = {
     ...data,
-    category_id: new Types.ObjectId(data.category_id as string),
+    category: new Types.ObjectId(data.category as string),
     slug,
     image: data.image ?? null,
     description: data.description ?? null,
   }
 
   const result = await SubCategory.create(subCategoryData)
-  await result.populate('category_id', 'name slug _id')
+  await result.populate('category', 'name slug _id')
   return result.toObject()
 }
 
 /**
  * Get All SubCategories Service
- * Supports pagination and filtering by category_id
+ * Supports pagination and filtering by category
  */
 export const getAllSubCategoriesService = async (
   options: PaginationOptions,
 ): Promise<PaginatedResult<ISubCategory>> => {
-  const { page, limit, category_id } = options
+  const { page, limit, category } = options
   const skip = (page - 1) * limit
 
   // Build filter
-  const filter: { category_id?: Types.ObjectId } = {}
-  if (category_id) {
-    filter.category_id = new Types.ObjectId(category_id)
+  const filter: { category?: Types.ObjectId } = {}
+  if (category) {
+    filter.category = new Types.ObjectId(category)
   }
 
   const [subCategories, total] = await Promise.all([
     SubCategory.find(filter)
-      .populate('category_id', 'name slug _id')
+      .populate('category', 'name slug _id')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -104,7 +107,7 @@ export const getSubCategoryByIdService = async (
   subCategoryId: string,
 ): Promise<ISubCategory | null> => {
   const subCategory = await SubCategory.findById(subCategoryId)
-    .populate('category_id', 'name slug _id')
+    .populate('category', 'name slug _id')
     .lean()
 
   if (!subCategory) {
@@ -121,13 +124,13 @@ export const getSubCategoryBySlugService = async (
   slug: string,
   categoryId?: string,
 ): Promise<ISubCategory | null> => {
-  const filter: { slug: string; category_id?: Types.ObjectId } = { slug }
+  const filter: { slug: string; category?: Types.ObjectId } = { slug }
   if (categoryId) {
-    filter.category_id = new Types.ObjectId(categoryId)
+    filter.category = new Types.ObjectId(categoryId)
   }
 
   const subCategory = await SubCategory.findOne(filter)
-    .populate('category_id', 'name slug _id')
+    .populate('category', 'name slug _id')
     .lean()
 
   if (!subCategory) {
@@ -154,13 +157,13 @@ export const getSubCategoriesByCategoryIdService = async (
   }
 
   const [subCategories, total] = await Promise.all([
-    SubCategory.find({ category_id: new Types.ObjectId(categoryId) })
-      .populate('category_id', 'name slug _id')
+    SubCategory.find({ category: new Types.ObjectId(categoryId) })
+      .populate('category', 'name slug _id')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean(),
-    SubCategory.countDocuments({ category_id: new Types.ObjectId(categoryId) }),
+    SubCategory.countDocuments({ category: new Types.ObjectId(categoryId) }),
   ])
 
   return {
@@ -186,31 +189,39 @@ export const updateSubCategoryService = async (
     throw new ApiError(status.NOT_FOUND, 'SubCategory not found')
   }
 
-  // If category_id is being updated, verify it exists
-  if (updateData.category_id) {
-    const category = await Category.findById(updateData.category_id)
+  // If category is being updated, verify it exists
+  if (updateData.category) {
+    const category = await Category.findById(updateData.category)
     if (!category) {
       throw new ApiError(status.NOT_FOUND, 'Category not found')
     }
-    updateData.category_id = new Types.ObjectId(updateData.category_id as string)
+    updateData.category = new Types.ObjectId(updateData.category as string)
   }
 
   // If name is updated and slug is not provided, regenerate slug
   if (updateData.name && !updateData.slug) {
-    updateData.slug = slugify(updateData.name, { lower: true, strict: true, trim: true })
+    updateData.slug = slugify(updateData.name, {
+      lower: true,
+      strict: true,
+      trim: true,
+    })
   }
 
   // If slug is provided, format it
   if (updateData.slug) {
-    updateData.slug = slugify(updateData.slug, { lower: true, strict: true, trim: true })
+    updateData.slug = slugify(updateData.slug, {
+      lower: true,
+      strict: true,
+      trim: true,
+    })
   }
 
   // Check if new slug conflicts with existing subcategory in the same category
-  const categoryIdToCheck = updateData.category_id || subCategory.category_id
+  const categoryIdToCheck = updateData.category || subCategory.category
   if (updateData.slug && updateData.slug !== subCategory.slug) {
     const existingSubCategory = await SubCategory.findOne({
       slug: updateData.slug,
-      category_id: categoryIdToCheck,
+      category: categoryIdToCheck,
       _id: { $ne: subCategoryId },
     })
     if (existingSubCategory) {
@@ -226,7 +237,7 @@ export const updateSubCategoryService = async (
 
   // Save and populate
   await subCategory.save()
-  await subCategory.populate('category_id', 'name slug _id')
+  await subCategory.populate('category', 'name slug _id')
 
   return subCategory.toObject()
 }
@@ -235,7 +246,9 @@ export const updateSubCategoryService = async (
  * Delete SubCategory Service
  * Admin can delete
  */
-export const deleteSubCategoryService = async (subCategoryId: string): Promise<void> => {
+export const deleteSubCategoryService = async (
+  subCategoryId: string,
+): Promise<void> => {
   const subCategory = await SubCategory.findById(subCategoryId)
 
   if (!subCategory) {

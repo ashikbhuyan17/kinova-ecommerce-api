@@ -7,10 +7,10 @@ exports.SubCategory = void 0;
 const mongoose_1 = require("mongoose");
 const slugify_1 = __importDefault(require("slugify"));
 const subCategorySchema = new mongoose_1.Schema({
-    category_id: {
+    category: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Category',
-        required: [true, 'Category ID is required'],
+        required: [true, 'Category  is required'],
     },
     slug: {
         type: String,
@@ -36,9 +36,9 @@ const subCategorySchema = new mongoose_1.Schema({
 }, {
     timestamps: true, // Automatically adds createdAt and updatedAt
 });
-// Compound unique index: slug + category_id (same slug can exist in different categories)
-subCategorySchema.index({ slug: 1, category_id: 1 }, { unique: true });
-subCategorySchema.index({ category_id: 1 });
+// Compound unique index: slug + category (same slug can exist in different categories)
+subCategorySchema.index({ slug: 1, category: 1 }, { unique: true });
+subCategorySchema.index({ category: 1 });
 subCategorySchema.index({ slug: 1 });
 // Pre-save hook to generate slug from name if slug is not provided
 subCategorySchema.pre('save', function (next) {

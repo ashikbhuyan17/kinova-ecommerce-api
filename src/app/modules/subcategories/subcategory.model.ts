@@ -4,10 +4,10 @@ import { ISubCategory } from './subcategory.interface'
 
 const subCategorySchema = new Schema<ISubCategory>(
   {
-    category_id: {
+    category: {
       type: Schema.Types.ObjectId,
       ref: 'Category',
-      required: [true, 'Category ID is required'],
+      required: [true, 'Category  is required'],
     },
     slug: {
       type: String,
@@ -36,9 +36,9 @@ const subCategorySchema = new Schema<ISubCategory>(
   },
 )
 
-// Compound unique index: slug + category_id (same slug can exist in different categories)
-subCategorySchema.index({ slug: 1, category_id: 1 }, { unique: true })
-subCategorySchema.index({ category_id: 1 })
+// Compound unique index: slug + category (same slug can exist in different categories)
+subCategorySchema.index({ slug: 1, category: 1 }, { unique: true })
+subCategorySchema.index({ category: 1 })
 subCategorySchema.index({ slug: 1 })
 
 // Pre-save hook to generate slug from name if slug is not provided
