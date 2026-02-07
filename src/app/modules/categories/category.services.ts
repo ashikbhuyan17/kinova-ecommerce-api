@@ -27,12 +27,16 @@ export const createCategoryService = async (
   data: Omit<ICategory, '_id' | 'createdAt' | 'updatedAt'>,
 ): Promise<ICategory> => {
   // Generate slug from name if not provided
-  const slug = data.slug || slugify(data.name, { lower: true, strict: true, trim: true })
+  const slug =
+    data.slug || slugify(data.name, { lower: true, strict: true, trim: true })
 
   // Check if slug already exists
   const existingCategory = await Category.findOne({ slug })
   if (existingCategory) {
-    throw new ApiError(status.CONFLICT, 'Category with this slug already exists')
+    throw new ApiError(
+      status.CONFLICT,
+      'Category with this slug already exists',
+    )
   }
 
   const categoryData: ICategory = {
@@ -57,11 +61,7 @@ export const getAllCategoriesService = async (
   const skip = (page - 1) * limit
 
   const [categories, total] = await Promise.all([
-    Category.find({})
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean(),
+    Category.find({}).sort({ createdAt: 1 }).skip(skip).limit(limit).lean(),
     Category.countDocuments({}),
   ])
 
@@ -120,19 +120,30 @@ export const updateCategoryService = async (
 
   // If name is updated and slug is not provided, regenerate slug
   if (updateData.name && !updateData.slug) {
-    updateData.slug = slugify(updateData.name, { lower: true, strict: true, trim: true })
+    updateData.slug = slugify(updateData.name, {
+      lower: true,
+      strict: true,
+      trim: true,
+    })
   }
 
   // If slug is provided, format it
   if (updateData.slug) {
-    updateData.slug = slugify(updateData.slug, { lower: true, strict: true, trim: true })
+    updateData.slug = slugify(updateData.slug, {
+      lower: true,
+      strict: true,
+      trim: true,
+    })
   }
 
   // Check if new slug conflicts with existing category
   if (updateData.slug && updateData.slug !== category.slug) {
     const existingCategory = await Category.findOne({ slug: updateData.slug })
     if (existingCategory) {
-      throw new ApiError(status.CONFLICT, 'Category with this slug already exists')
+      throw new ApiError(
+        status.CONFLICT,
+        'Category with this slug already exists',
+      )
     }
   }
 
@@ -149,7 +160,9 @@ export const updateCategoryService = async (
  * Delete Category Service
  * Admin can delete
  */
-export const deleteCategoryService = async (categoryId: string): Promise<void> => {
+export const deleteCategoryService = async (
+  categoryId: string,
+): Promise<void> => {
   const category = await Category.findById(categoryId)
 
   if (!category) {
